@@ -4,11 +4,14 @@ import com.freedom.entity.User;
 import com.freedom.service.UserService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
+import org.apache.shiro.authc.credential.CredentialsMatcher;
+import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.lang.StringUtils;
 
@@ -24,6 +27,8 @@ public class UserRealm extends AuthorizingRealm {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private Md5Test md5Test;
 
     /**
      * 执行授权
@@ -65,16 +70,43 @@ public class UserRealm extends AuthorizingRealm {
         String password = "123";*/
 
 
-        //1、判断用户名
         UsernamePasswordToken token = (UsernamePasswordToken)authenticationToken;
+
+        /*//以下信息是从数据库中获取的.
+        //1). principal: 认证的实体信息. 可以是 username, 也可以是数据表对应的用户的实体类对象.
+        Object principal = userService.findByUsername(token.getUsername());
+        if(principal == null){
+            //用户不存在
+            return null;    //shiro底层会抛出UnknownAccountException错误
+        }
+
+        //2.credentialsSalt:盐值
+        ByteSource credentialsSalt = ByteSource.Util.bytes(token.getUsername());
+        //3、hashedCredentials:密码
+        Object hashedCredentials = md5Test.md5(token.getPassword(), credentialsSalt);
+        //4、realmName: 当前 realm 对象的 name. 调用父类的 getName() 方法即可
+        String realmName = getName();*/
         User user = userService.findByUsername(token.getUsername());
         if(user == null){
             //用户不存在
             return null;    //shiro底层会抛出UnknownAccountException错误
         }
 
-        //2、判断密码
-        SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(user, token.getPassword(), "");
+        SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(user, user.getPassword(), ByteSource.Util.bytes(user.getUsername()), getName());
+        //SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(user, token.getPassword(), "");
         return info;
     }
+
+
+    /**
+     * 注入加密方式二：
+     */
+  /*  @Override
+    public void setCredentialsMatcher(CredentialsMatcher credentialsMatcher) {
+        // 重写 setCredentialsMatcher 方法为自定义的 Realm 设置 hash 验证方法
+        HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();
+        hashedCredentialsMatcher.setHashAlgorithmName("MD5");
+        hashedCredentialsMatcher.setHashIterations(1024);
+        super.setCredentialsMatcher(hashedCredentialsMatcher);
+    }*/
 }

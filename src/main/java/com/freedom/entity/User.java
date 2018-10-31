@@ -12,6 +12,8 @@ public class User {
 
     private String password;
 
+    private String salt;
+
     private String perms;
 
     public Integer getId() {
@@ -44,5 +46,13 @@ public class User {
 
     public void setPerms(String perms) {
         this.perms = perms;
+    }
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 }

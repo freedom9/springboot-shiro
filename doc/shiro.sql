@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50723
 File Encoding         : 65001
 
-Date: 2018-10-30 16:52:31
+Date: 2018-10-31 10:31:27
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -22,7 +22,8 @@ DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `username` varchar(20) DEFAULT NULL,
-  `password` varchar(20) DEFAULT NULL,
+  `password` varchar(50) DEFAULT NULL,
+  `salt` varchar(30) DEFAULT NULL,
   `perms` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
@@ -30,7 +31,8 @@ CREATE TABLE `user` (
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES ('1', '小白', '123', 'user:add,user:update');
-INSERT INTO `user` VALUES ('2', 'aaa', '123', 'user:add');
-INSERT INTO `user` VALUES ('3', 'bbb', '123', 'user:update');
-INSERT INTO `user` VALUES ('4', 'ccc', '123', 'user:add,user:update');
+--原始密码123
+INSERT INTO `user` VALUES ('1', '小白', 'b76484c24e095b6d915ec2ad3d50b2dd', '5bCP55m9', 'user:add,user:update');
+INSERT INTO `user` VALUES ('2', 'aaa', 'e97ae203e788e10b215184a0ea10ebf7', 'YWFh', 'user:add');
+INSERT INTO `user` VALUES ('3', 'bbb', 'a6fae6fc2eec0645004ba1ee3659520c', 'YmJi', 'user:update');
+INSERT INTO `user` VALUES ('4', 'ccc', 'febff1ca405b1e0420f5af3caf6463e7', 'Y2Nj', 'user:add,user:update');

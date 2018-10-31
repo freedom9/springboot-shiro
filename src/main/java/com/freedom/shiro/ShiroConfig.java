@@ -1,6 +1,7 @@
 package com.freedom.shiro;
 
 import at.pollux.thymeleaf.shiro.dialect.ShiroDialect;
+import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,6 +41,7 @@ public class ShiroConfig {
         Map<String, String> filterMap = new LinkedHashMap<String, String>();
         filterMap.put("/testThymeleaf", "anon");
         filterMap.put("/login", "anon");
+        filterMap.put("/logout", "logout");
 
         //授权过滤器
         filterMap.put("/add", "perms[user:add]");
@@ -74,7 +76,24 @@ public class ShiroConfig {
      */
     @Bean(name = "userRealm")
     public UserRealm getUserRealm(){
-        return new UserRealm();
+        UserRealm userRealm = new UserRealm();
+        userRealm.setCredentialsMatcher(hashedCredentialsMatcher());
+        return userRealm;
+    }
+
+    /**
+     * 注入加密方式一：
+     * * 凭证匹配器
+     * （由于我们的密码校验交给Shiro的SimpleAuthenticationInfo进行处理了 ）
+     * @return
+     */
+    @Bean
+    public HashedCredentialsMatcher hashedCredentialsMatcher(){
+        HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();
+        hashedCredentialsMatcher.setHashAlgorithmName("md5");//散列算法:这里使用MD5算法;
+        //   hashedCredentialsMatcher.setHashIterations(2);//散列的次数，比如散列两次，相当于 md5(md5(""));
+        hashedCredentialsMatcher.setHashIterations(1024);
+        return hashedCredentialsMatcher;
     }
 
     /**

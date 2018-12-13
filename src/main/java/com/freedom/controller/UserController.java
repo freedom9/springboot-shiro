@@ -1,5 +1,8 @@
 package com.freedom.controller;
 
+import com.freedom.DTO.LoginDTO;
+import com.freedom.shiro.CaptchaUsernamePasswordToken;
+import com.freedom.shiro.UserRealm;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.subject.Subject;
@@ -39,14 +42,22 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public String login(String username, String password, Model model){
+    public String login(LoginDTO loginDTO, Model model){
         //1、获得subjest
         Subject subject = SecurityUtils.getSubject();
         //2、封装用户数据
-        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+       // UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+
+            CaptchaUsernamePasswordToken token = new CaptchaUsernamePasswordToken(loginDTO.getUsername(), loginDTO.getPassword(), loginDTO.getCaptchaCode());
         //3、执行登录方法
         try {
             subject.login(token);
+        } catch (UserRealm.CaptchaEmptyException e) {
+            model.addAttribute("msg", "验证码为空");
+            return "login";
+        } catch (UserRealm.CaptchaErrorException e) {
+            model.addAttribute("msg", "验证码错误");
+            return "login";
         } catch (UnknownAccountException e){
             model.addAttribute("msg", "用户名不存在");
             return "login";

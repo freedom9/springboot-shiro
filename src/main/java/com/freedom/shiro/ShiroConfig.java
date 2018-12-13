@@ -42,6 +42,7 @@ public class ShiroConfig {
         filterMap.put("/testThymeleaf", "anon");
         filterMap.put("/login", "anon");
         filterMap.put("/logout", "logout");
+        filterMap.put("/defaultKaptcha","anon");
 
         //授权过滤器
         filterMap.put("/add", "perms[user:add]");

@@ -70,7 +70,23 @@ public class UserRealm extends AuthorizingRealm {
         String password = "123";*/
 
 
-        UsernamePasswordToken token = (UsernamePasswordToken)authenticationToken;
+//        UsernamePasswordToken token = (UsernamePasswordToken)authenticationToken;
+
+        CaptchaUsernamePasswordToken token = (CaptchaUsernamePasswordToken) authenticationToken;
+
+        String captchaCode = token.getCaptchaCode();
+
+        if (captchaCode == null || "".equals(captchaCode)){
+            throw new CaptchaEmptyException();
+        }
+
+        //获取session中的验证码
+        //默认KEY为KAPTCHA_SESSION_KEY,与ValidateCodeController中setAttribute的KEY相对应
+        String sessionCaptcha = (String) SecurityUtils.getSubject().getSession().getAttribute("KAPTCHA_SESSION_KEY");
+
+        if (!captchaCode.equals(sessionCaptcha)){
+            throw new CaptchaErrorException();
+        }
 
         /*//以下信息是从数据库中获取的.
         //1). principal: 认证的实体信息. 可以是 username, 也可以是数据表对应的用户的实体类对象.
@@ -86,6 +102,7 @@ public class UserRealm extends AuthorizingRealm {
         Object hashedCredentials = md5Test.md5(token.getPassword(), credentialsSalt);
         //4、realmName: 当前 realm 对象的 name. 调用父类的 getName() 方法即可
         String realmName = getName();*/
+
         User user = userService.findByUsername(token.getUsername());
         if(user == null){
             //用户不存在
@@ -109,4 +126,18 @@ public class UserRealm extends AuthorizingRealm {
         hashedCredentialsMatcher.setHashIterations(1024);
         super.setCredentialsMatcher(hashedCredentialsMatcher);
     }*/
+
+
+    /**
+     * 自定义验证码为空异常
+     * AuthenticationException为shiro认证错误的异常，不同错误类型继承该异常即可
+     */
+    public class CaptchaEmptyException extends AuthenticationException{
+    }
+
+    /**
+     * 自定义验证码错误异常
+     */
+    public class CaptchaErrorException extends AuthenticationException{
+    }
 }

@@ -6,10 +6,17 @@
 </head>
 <body>
 <h3>登录</h3>
-<h3 th:text = "${msg}" style="color: red"></h3>
+<h3 th:text="${msg}" style="color: red"></h3>
 <form action="/login" method="post">
     用户名：<input type="text" name="username"/> <br/>
+
     密码: <input type="password" name="password"/> <br/>
+
+    <div>
+        验证码：<input type="text" name="captchaCode"/>
+        <img alt="验证码" onclick="this.src='/defaultKaptcha?d='+new Date()*1" src="/defaultKaptcha"/>
+    </div>
+    <br/>
     <input type="submit" value="登录"/>
 </form>
 </body>
